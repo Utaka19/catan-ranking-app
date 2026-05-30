@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
   },
   safeArea: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
   },
   content: {
