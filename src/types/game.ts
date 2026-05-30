@@ -28,6 +28,7 @@ export type GameInput = {
 };
 
 export type RankingRow = {
+  displayRank: number;
   playerId: PlayerId;
   playerName: string;
   firstPlaces: number;

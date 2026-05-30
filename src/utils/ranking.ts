@@ -27,6 +27,7 @@ export function filterGamesByPeriod(games: readonly Game[], selection: PeriodSel
 
 export function buildRanking(games: readonly Game[], players: readonly Player[]): RankingRow[] {
   const rows = players.map<RankingRow>((player) => ({
+    displayRank: 0,
     playerId: player.id,
     playerName: player.name,
     firstPlaces: 0,
@@ -55,7 +56,7 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
     }
   }
 
-  return rows.sort((left, right) => {
+  const sortedRows = rows.sort((left, right) => {
     if (left.firstPlaces !== right.firstPlaces) {
       return right.firstPlaces - left.firstPlaces;
     }
@@ -69,5 +70,20 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
     }
 
     return right.totalPoints - left.totalPoints;
+  });
+
+  return sortedRows.map((row, index) => {
+    const previousRow = sortedRows[index - 1];
+    const isTiedWithPrevious =
+      previousRow &&
+      row.firstPlaces === previousRow.firstPlaces &&
+      row.secondPlaces === previousRow.secondPlaces &&
+      row.thirdPlaces === previousRow.thirdPlaces &&
+      row.totalPoints === previousRow.totalPoints;
+
+    return {
+      ...row,
+      displayRank: isTiedWithPrevious ? previousRow.displayRank : index + 1,
+    };
   });
 }

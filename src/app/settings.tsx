@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { useGames } from '@/components/GameContext';
 import { PlayerNameEditor } from '@/components/PlayerNameEditor';
 import { Card, ScreenShell } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
+import { confirmAction } from '@/utils/confirm';
 import { exportGamesToCsv } from '@/utils/csv';
 
 export default function SettingsScreen() {
@@ -29,30 +30,24 @@ export default function SettingsScreen() {
     setMessage('CSV欄を長押しして手動でコピーしてください。');
   };
 
-  const handleReset = () => {
-    Alert.alert(
+  const handleReset = async () => {
+    const firstConfirmed = await confirmAction(
       'すべての試合履歴を削除します。',
       'この操作は元に戻せません。\n開拓者名は削除されません。',
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '続ける',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('本当に削除しますか？', undefined, [
-              { text: 'キャンセル', style: 'cancel' },
-              {
-                text: '削除する',
-                style: 'destructive',
-                onPress: () => {
-                  void clearGames().then(() => setMessage('すべての試合履歴を削除しました。'));
-                },
-              },
-            ]);
-          },
-        },
-      ],
     );
+
+    if (!firstConfirmed) {
+      return;
+    }
+
+    const secondConfirmed = await confirmAction('本当に削除しますか？');
+
+    if (!secondConfirmed) {
+      return;
+    }
+
+    await clearGames();
+    setMessage('すべての試合履歴を削除しました。');
   };
 
   return (
@@ -110,7 +105,7 @@ export default function SettingsScreen() {
             開拓者名は残し、試合履歴だけを削除します。
           </ThemedText>
         </View>
-        <Pressable accessibilityRole="button" onPress={handleReset} style={styles.resetButton}>
+        <Pressable accessibilityRole="button" onPress={() => void handleReset()} style={styles.resetButton}>
           <ThemedText type="smallBold" style={styles.resetText}>
             戦績をリセット
           </ThemedText>

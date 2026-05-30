@@ -32,5 +32,14 @@ export function validateGameInput(input: GameInput) {
     }
   }
 
+  const sortedParticipants = [...input.participants].sort((left, right) => left.rank - right.rank);
+  const [first, second, third] = sortedParticipants;
+
+  if (first.points < second.points || second.points < third.points) {
+    errors.push(
+      '順位とポイントが一致していません。1位 >= 2位 >= 3位 になるように入力してください。',
+    );
+  }
+
   return errors;
 }

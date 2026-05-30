@@ -1,4 +1,5 @@
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
 
 import { GameResultForm } from '@/components/GameForm';
 import { useGames } from '@/components/GameContext';
@@ -6,8 +7,8 @@ import { Card } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
 import type { Game, GameInput, Player, PlayerId } from '@/types/game';
+import { confirmAction } from '@/utils/confirm';
 import { sortGamesByNewest } from '@/utils/ranking';
-import { useState } from 'react';
 
 function getPlayerName(players: readonly Player[], playerId: PlayerId) {
   return players.find((player) => player.id === playerId)?.name ?? playerId;
@@ -24,20 +25,20 @@ export function GameHistoryList({
   const [editingGameId, setEditingGameId] = useState<string | null>(null);
   const sortedGames = sortGamesByNewest(games);
 
-  const handleDelete = (game: Game) => {
-    Alert.alert('この試合結果を削除しますか？', 'この操作は元に戻せません。', [
-      { text: 'キャンセル', style: 'cancel' },
-      {
-        text: '削除',
-        style: 'destructive',
-        onPress: () => {
-          void deleteGame(game.id);
-          if (editingGameId === game.id) {
-            setEditingGameId(null);
-          }
-        },
-      },
-    ]);
+  const handleDelete = async (game: Game) => {
+    const confirmed = await confirmAction(
+      'この試合結果を削除しますか？',
+      'この操作は元に戻せません。',
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    await deleteGame(game.id);
+    if (editingGameId === game.id) {
+      setEditingGameId(null);
+    }
   };
 
   const handleUpdate = async (game: Game, input: GameInput) => {
@@ -103,7 +104,7 @@ export function GameHistoryList({
                       </Pressable>
                       <Pressable
                         accessibilityRole="button"
-                        onPress={() => handleDelete(game)}
+                        onPress={() => void handleDelete(game)}
                         style={styles.deleteButton}>
                         <ThemedText type="smallBold" style={styles.deleteText}>
                           削除

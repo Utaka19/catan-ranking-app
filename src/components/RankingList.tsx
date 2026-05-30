@@ -51,7 +51,7 @@ export function RankingList({
             <View key={row.playerId} style={styles.row}>
               <View style={styles.rankBadge}>
                 <ThemedText type="smallBold" style={styles.rankText}>
-                  {index + 1}
+                  {row.displayRank}
                 </ThemedText>
               </View>
               <View style={styles.playerColumn}>
