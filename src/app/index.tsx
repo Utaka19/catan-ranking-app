@@ -90,9 +90,10 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   heroImage: {
-    width: 96,
-    height: 96,
-    opacity: 0.92,
+    width: 136,
+    height: 136,
+    flexShrink: 1,
+    opacity: 0.88,
   },
   appName: {
     color: '#FFFFFF',

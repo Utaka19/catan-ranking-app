@@ -165,9 +165,9 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   kingImage: {
-    width: 116,
-    height: 116,
-    flexShrink: 0,
+    width: 148,
+    height: 148,
+    flexShrink: 1,
   },
   kingHeading: {
     color: Colors.light.heading,

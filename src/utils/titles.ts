@@ -135,42 +135,42 @@ export function getMatchTitle(
     const difference = participant.points - nextPoint;
 
     if (difference >= 3) {
-      return '今日は別格';
+      return '👑 今日は別格';
     }
 
     if (difference >= 1) {
-      return '本日の勝者';
+      return '🏆 本日の勝者';
     }
 
-    return '首の皮一枚';
+    return '🔥 首の皮一枚';
   }
 
   if (participant.rank === 2) {
     const tiedSecondCount = participants.filter((candidate) => candidate.rank === 2).length;
 
     if (tiedSecondCount > 1) {
-      return '羊分け合っとる場合か';
+      return '🐑 羊分け合っとる場合か';
     }
 
     const firstPlacePoint = getPointForRank(1, participants) ?? participant.points;
 
     if (firstPlacePoint - participant.points === 1) {
-      return '惜しかったやん';
+      return '🥈 惜しかったやん';
     }
 
-    return 'ええ線いっとる';
+    return '🛖 ええ線いっとる';
   }
 
   const comparisonPoint = secondPlacePoint ?? participant.points;
   const difference = comparisonPoint - participant.points;
 
   if (difference === 1) {
-    return '今日は頑張ったやん';
+    return '👏 今日は頑張ったやん';
   }
 
   if (difference === 2) {
-    return '資源係';
+    return '📦 資源係';
   }
 
-  return '島におった？';
+  return '👀 島におった？';
 }
