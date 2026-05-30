@@ -4,7 +4,6 @@ import { StyleSheet, View } from 'react-native';
 import { GameForm } from '@/components/GameForm';
 import { useGames } from '@/components/GameContext';
 import { PeriodSelector } from '@/components/PeriodSelector';
-import { PlayerNameEditor } from '@/components/PlayerNameEditor';
 import { RankingList } from '@/components/RankingList';
 import { ScreenShell } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
@@ -63,7 +62,6 @@ export default function HomeScreen() {
             errorMessage={periodError}
           />
           <GameForm />
-          <PlayerNameEditor />
         </>
       )}
     </ScreenShell>

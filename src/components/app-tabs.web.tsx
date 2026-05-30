@@ -25,6 +25,9 @@ export default function AppTabs() {
           <TabTrigger name="explore" href="/explore" asChild>
             <TabButton>履歴</TabButton>
           </TabTrigger>
+          <TabTrigger name="settings" href="/settings" asChild>
+            <TabButton>設定</TabButton>
+          </TabTrigger>
         </CustomTabList>
       </TabList>
     </Tabs>

@@ -9,7 +9,15 @@ import {
 } from 'react';
 
 import { DEFAULT_PLAYERS } from '@/constants/players';
-import { loadGames, loadPlayers, saveGames, savePlayers } from '@/storage/gameStorage';
+import {
+  clearStoredGames,
+  deleteStoredGame,
+  loadGames,
+  loadPlayers,
+  saveGames,
+  savePlayers,
+  updateStoredGame,
+} from '@/storage/gameStorage';
 import type { Game, GameInput, Player, PlayerId, Players } from '@/types/game';
 import { validateGameInput } from '@/utils/validation';
 
@@ -19,6 +27,9 @@ type GameContextValue = {
   isLoading: boolean;
   errorMessage: string | null;
   addGame: (input: GameInput) => Promise<{ ok: true } | { ok: false; errors: string[] }>;
+  updateGame: (game: Game) => Promise<{ ok: true } | { ok: false; errors: string[] }>;
+  deleteGame: (gameId: string) => Promise<void>;
+  clearGames: () => Promise<void>;
   updatePlayerName: (
     playerId: PlayerId,
     name: string,
@@ -84,6 +95,32 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return { ok: true } as const;
   }, [games]);
 
+  const updateGame = useCallback(async (game: Game) => {
+    const errors = validateGameInput(game);
+
+    if (errors.length > 0) {
+      return { ok: false, errors } as const;
+    }
+
+    const nextGames = await updateStoredGame(game);
+    setGames(nextGames);
+    setErrorMessage(null);
+
+    return { ok: true } as const;
+  }, []);
+
+  const deleteGame = useCallback(async (gameId: string) => {
+    const nextGames = await deleteStoredGame(gameId);
+    setGames(nextGames);
+    setErrorMessage(null);
+  }, []);
+
+  const clearGames = useCallback(async () => {
+    await clearStoredGames();
+    setGames([]);
+    setErrorMessage(null);
+  }, []);
+
   const updatePlayerName = useCallback(async (playerId: PlayerId, name: string) => {
     const trimmedName = name.trim();
 
@@ -109,9 +146,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
       isLoading,
       errorMessage,
       addGame,
+      updateGame,
+      deleteGame,
+      clearGames,
       updatePlayerName,
     }),
-    [addGame, errorMessage, games, isLoading, players, updatePlayerName],
+    [addGame, clearGames, deleteGame, errorMessage, games, isLoading, players, updateGame, updatePlayerName],
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

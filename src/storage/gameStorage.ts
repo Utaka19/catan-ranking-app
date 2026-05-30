@@ -86,6 +86,26 @@ export async function saveGames(games: readonly Game[]) {
   await AsyncStorage.setItem(STORAGE_KEYS.games, JSON.stringify(games));
 }
 
+export async function updateStoredGame(game: Game) {
+  const games = await loadGames();
+  const nextGames = games.map((currentGame) =>
+    currentGame.id === game.id ? { ...game, createdAt: currentGame.createdAt } : currentGame,
+  );
+  await saveGames(nextGames);
+  return nextGames;
+}
+
+export async function deleteStoredGame(gameId: string) {
+  const games = await loadGames();
+  const nextGames = games.filter((game) => game.id !== gameId);
+  await saveGames(nextGames);
+  return nextGames;
+}
+
+export async function clearStoredGames() {
+  await saveGames([]);
+}
+
 export async function loadPlayers() {
   const rawPlayers = await AsyncStorage.getItem(STORAGE_KEYS.players);
 

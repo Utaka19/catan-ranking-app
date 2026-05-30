@@ -6,7 +6,7 @@ import { useGames } from '@/components/GameContext';
 import { Card } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
-import type { GameInput, GameParticipant, PlayerId, Rank } from '@/types/game';
+import type { Game, GameInput, GameParticipant, PlayerId, Rank } from '@/types/game';
 import { getTodayString } from '@/utils/date';
 
 type FormParticipant = {
@@ -14,7 +14,7 @@ type FormParticipant = {
   points: string;
 };
 
-const INITIAL_PARTICIPANTS: [FormParticipant, FormParticipant, FormParticipant] = [
+const EMPTY_PARTICIPANTS: [FormParticipant, FormParticipant, FormParticipant] = [
   { playerId: null, points: '' },
   { playerId: null, points: '' },
   { playerId: null, points: '' },
@@ -23,7 +23,19 @@ const INITIAL_PARTICIPANTS: [FormParticipant, FormParticipant, FormParticipant] 
 function createInitialForm() {
   return {
     date: getTodayString(),
-    participants: INITIAL_PARTICIPANTS,
+    participants: EMPTY_PARTICIPANTS,
+  };
+}
+
+function createFormFromGame(game: Game) {
+  return {
+    date: game.date,
+    participants: [...game.participants]
+      .sort((left, right) => left.rank - right.rank)
+      .map<FormParticipant>((participant) => ({
+        playerId: participant.playerId,
+        points: String(participant.points),
+      })) as [FormParticipant, FormParticipant, FormParticipant],
   };
 }
 
@@ -42,10 +54,31 @@ function toGameInput(date: string, participants: readonly FormParticipant[]): Ga
   };
 }
 
-export function GameForm() {
-  const { addGame, players } = useGames();
-  const [date, setDate] = useState(createInitialForm().date);
-  const [participants, setParticipants] = useState(createInitialForm().participants);
+type GameResultFormProps = {
+  title: string;
+  description: string;
+  submitLabel: string;
+  successMessage: string;
+  initialGame?: Game;
+  onSubmit: (input: GameInput) => Promise<{ ok: true } | { ok: false; errors: string[] }>;
+  onCancel?: () => void;
+  resetAfterSubmit?: boolean;
+};
+
+export function GameResultForm({
+  title,
+  description,
+  submitLabel,
+  successMessage,
+  initialGame,
+  onSubmit,
+  onCancel,
+  resetAfterSubmit = false,
+}: GameResultFormProps) {
+  const { players } = useGames();
+  const initialForm = initialGame ? createFormFromGame(initialGame) : createInitialForm();
+  const [date, setDate] = useState(initialForm.date);
+  const [participants, setParticipants] = useState(initialForm.participants);
   const [messages, setMessages] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -85,7 +118,7 @@ export function GameForm() {
 
   const handleSubmit = async () => {
     if (participants.some((participant) => !participant.playerId)) {
-      setMessages(['1位、2位、3位のプレイヤーをすべて選択してください。']);
+      setMessages(['1位、2位、3位の開拓者をすべて選択してください。']);
       return;
     }
 
@@ -95,7 +128,7 @@ export function GameForm() {
     }
 
     setIsSaving(true);
-    const result = await addGame(toGameInput(date.trim(), participants));
+    const result = await onSubmit(toGameInput(date.trim(), participants));
     setIsSaving(false);
 
     if (!result.ok) {
@@ -103,20 +136,23 @@ export function GameForm() {
       return;
     }
 
-    const initialForm = createInitialForm();
-    setDate(initialForm.date);
-    setParticipants(initialForm.participants);
-    setMessages(['記録しました。']);
+    if (resetAfterSubmit) {
+      const nextInitialForm = createInitialForm();
+      setDate(nextInitialForm.date);
+      setParticipants(nextInitialForm.participants);
+    }
+
+    setMessages([successMessage]);
   };
 
   return (
     <Card>
       <View style={styles.header}>
         <ThemedText type="smallBold" style={styles.heading}>
-          試合結果を記録
+          {title}
         </ThemedText>
         <ThemedText type="small" style={styles.caption}>
-          3人分の順位とポイントを入力
+          {description}
         </ThemedText>
       </View>
 
@@ -182,16 +218,40 @@ export function GameForm() {
         </View>
       )}
 
-      <Pressable
-        accessibilityRole="button"
-        disabled={isSaving}
-        onPress={handleSubmit}
-        style={[styles.submitButton, isSaving && styles.submitButtonDisabled]}>
-        <ThemedText type="smallBold" style={styles.submitText}>
-          {isSaving ? '保存中' : '記録する'}
-        </ThemedText>
-      </Pressable>
+      <View style={styles.actions}>
+        {onCancel ? (
+          <Pressable accessibilityRole="button" onPress={onCancel} style={styles.cancelButton}>
+            <ThemedText type="smallBold" style={styles.cancelText}>
+              キャンセル
+            </ThemedText>
+          </Pressable>
+        ) : null}
+        <Pressable
+          accessibilityRole="button"
+          disabled={isSaving}
+          onPress={handleSubmit}
+          style={[styles.submitButton, isSaving && styles.submitButtonDisabled]}>
+          <ThemedText type="smallBold" style={styles.submitText}>
+            {isSaving ? '保存中' : submitLabel}
+          </ThemedText>
+        </Pressable>
+      </View>
     </Card>
+  );
+}
+
+export function GameForm() {
+  const { addGame } = useGames();
+
+  return (
+    <GameResultForm
+      title="試合結果を記録"
+      description="3人分の順位とポイントを入力"
+      submitLabel="記録する"
+      successMessage="記録しました。"
+      onSubmit={addGame}
+      resetAfterSubmit
+    />
   );
 }
 
@@ -204,19 +264,6 @@ const styles = StyleSheet.create({
   },
   caption: {
     color: Colors.light.mutedText,
-  },
-  field: {
-    gap: Spacing.two,
-  },
-  input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    backgroundColor: Colors.light.input,
-    color: Colors.light.text,
-    paddingHorizontal: Spacing.three,
-    fontSize: 16,
   },
   rankFields: {
     gap: Spacing.two,
@@ -266,9 +313,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.deepGreen,
     backgroundColor: Colors.light.deepGreen,
   },
-  playerButtonDisabled: {
-    opacity: 0.55,
-  },
   playerButtonAssignedElsewhere: {
     borderColor: Colors.light.brick,
     backgroundColor: Colors.light.surface,
@@ -288,8 +332,26 @@ const styles = StyleSheet.create({
   messageText: {
     color: Colors.light.text,
   },
+  actions: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  cancelButton: {
+    minHeight: 52,
+    flex: 1,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: Colors.light.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.light.surface,
+  },
+  cancelText: {
+    color: Colors.light.heading,
+  },
   submitButton: {
     minHeight: 52,
+    flex: 1,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
