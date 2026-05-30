@@ -1,10 +1,16 @@
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 import { Card } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
+import { IllustrationImages } from '@/constants/images';
 import { Colors, Spacing } from '@/constants/theme';
 import type { RankingRow } from '@/types/game';
-import { getIslandKing, getOverallTitle, getRankBadgeTone } from '@/utils/titles';
+import {
+  getIslandKing,
+  getOverallTitle,
+  getOverallTitleImage,
+  getRankBadgeTone,
+} from '@/utils/titles';
 
 export function RankingList({
   rows,
@@ -24,15 +30,22 @@ export function RankingList({
     <Card>
       {islandKing ? (
         <View style={styles.kingCard}>
-          <ThemedText type="smallBold" style={styles.kingHeading}>
-            {islandKing.heading}
-          </ThemedText>
-          <ThemedText type="subtitle" style={styles.kingName}>
-            {islandKing.names}
-          </ThemedText>
-          <ThemedText type="smallBold" style={styles.kingTitle}>
-            {islandKing.title}
-          </ThemedText>
+          <View style={styles.kingText}>
+            <ThemedText type="smallBold" style={styles.kingHeading}>
+              {islandKing.heading}
+            </ThemedText>
+            <ThemedText type="subtitle" style={styles.kingName}>
+              {islandKing.names}
+            </ThemedText>
+            <ThemedText type="smallBold" style={styles.kingTitle}>
+              {islandKing.title}
+            </ThemedText>
+          </View>
+          <Image
+            source={IllustrationImages.islandKingEmblem}
+            resizeMode="contain"
+            style={styles.kingImage}
+          />
         </View>
       ) : null}
 
@@ -59,9 +72,19 @@ export function RankingList({
         </View>
       ) : emptyMessage ? (
         <View style={styles.notice}>
-          <ThemedText type="smallBold" style={styles.noticeText}>
-            {emptyMessage}
-          </ThemedText>
+          <Image
+            source={IllustrationImages.rankingSheep}
+            resizeMode="contain"
+            style={styles.emptyImage}
+          />
+          <View style={styles.emptyTextColumn}>
+            <ThemedText type="smallBold" style={styles.noticeText}>
+              {emptyMessage}
+            </ThemedText>
+            <ThemedText type="small" style={styles.caption}>
+              この期間は羊たちがのんびりしています。
+            </ThemedText>
+          </View>
         </View>
       ) : (
         <View style={styles.rows}>
@@ -76,9 +99,16 @@ export function RankingList({
                 <ThemedText type="smallBold" style={styles.playerName}>
                   {row.playerName}
                 </ThemedText>
-                <ThemedText type="smallBold" style={styles.titleText}>
-                  {getOverallTitle(row, rows)}
-                </ThemedText>
+                <View style={styles.titleRow}>
+                  <Image
+                    source={getOverallTitleImage(row, rows)}
+                    resizeMode="contain"
+                    style={styles.titleImage}
+                  />
+                  <ThemedText type="smallBold" style={styles.titleText}>
+                    {getOverallTitle(row, rows)}
+                  </ThemedText>
+                </View>
                 <ThemedText type="small" style={styles.caption}>
                   {row.totalPoints} pt
                 </ThemedText>
@@ -121,12 +151,22 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   kingCard: {
-    gap: Spacing.one,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
     borderRadius: 8,
     borderWidth: 1.5,
     borderColor: Colors.light.rankGold,
     backgroundColor: Colors.light.kingSurface,
     padding: Spacing.three,
+  },
+  kingText: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  kingImage: {
+    width: 88,
+    height: 88,
   },
   kingHeading: {
     color: Colors.light.heading,
@@ -154,6 +194,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Colors.light.border,
     padding: Spacing.three,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
   },
   noticeError: {
     backgroundColor: Colors.light.wheatSoft,
@@ -161,6 +204,14 @@ const styles = StyleSheet.create({
   },
   noticeText: {
     color: Colors.light.text,
+  },
+  emptyImage: {
+    width: 40,
+    height: 40,
+  },
+  emptyTextColumn: {
+    flex: 1,
+    gap: 2,
   },
   noticeErrorText: {
     color: Colors.light.brick,
@@ -216,6 +267,16 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: Colors.light.brick,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+    marginTop: 2,
+  },
+  titleImage: {
+    width: 34,
+    height: 34,
   },
   placeStats: {
     flexDirection: 'row',

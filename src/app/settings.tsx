@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { useGames } from '@/components/GameContext';
 import { PlayerNameEditor } from '@/components/PlayerNameEditor';
 import { Card, ScreenShell } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
+import { IllustrationImages } from '@/constants/images';
 import { Colors, Spacing } from '@/constants/theme';
 import { confirmAction } from '@/utils/confirm';
 import { exportGamesToCsv } from '@/utils/csv';
@@ -53,12 +54,19 @@ export default function SettingsScreen() {
   return (
     <ScreenShell>
       <View style={styles.hero}>
-        <ThemedText type="subtitle" style={styles.title}>
-          設定
-        </ThemedText>
-        <ThemedText type="small" style={styles.lead}>
-          開拓者名、CSV出力、戦績リセットを管理。
-        </ThemedText>
+        <View style={styles.heroText}>
+          <ThemedText type="subtitle" style={styles.title}>
+            設定
+          </ThemedText>
+          <ThemedText type="small" style={styles.lead}>
+            開拓者名、CSV出力、戦績リセットを管理。
+          </ThemedText>
+        </View>
+        <Image
+          source={IllustrationImages.headerJournal}
+          resizeMode="contain"
+          style={styles.heroImage}
+        />
       </View>
 
       <PlayerNameEditor />
@@ -123,10 +131,21 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   hero: {
-    gap: Spacing.two,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
     borderRadius: 8,
     backgroundColor: Colors.light.deepGreen,
     padding: Spacing.four,
+  },
+  heroText: {
+    flex: 1,
+    gap: Spacing.two,
+  },
+  heroImage: {
+    width: 96,
+    height: 96,
+    opacity: 0.92,
   },
   title: {
     color: '#FFFFFF',

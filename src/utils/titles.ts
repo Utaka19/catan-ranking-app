@@ -1,4 +1,5 @@
 import type { GameParticipant, RankingRow } from '@/types/game';
+import { IllustrationImages } from '@/constants/images';
 
 export type IslandKing = {
   heading: string;
@@ -59,6 +60,35 @@ export function getOverallTitle(row: RankingRow, rows: readonly RankingRow[]) {
   }
 
   return '🐑 羊泥棒';
+}
+
+export function getOverallTitleImage(row: RankingRow, rows: readonly RankingRow[]) {
+  const displayRank = row.displayRank > 0 ? row.displayRank : 1;
+  const sameRankCount = getRankGroupSize(displayRank, rows);
+  const isTied = sameRankCount > 1;
+  const isTiedLast = displayRank === getLowestDisplayRank(rows) && isTied;
+
+  if (displayRank === 1 && isTied) {
+    return IllustrationImages.rankingBattle;
+  }
+
+  if (displayRank === 1) {
+    return IllustrationImages.rankingCrown;
+  }
+
+  if (displayRank === 2 && isTied) {
+    return IllustrationImages.rankingSettlement;
+  }
+
+  if (displayRank === 2) {
+    return IllustrationImages.rankingShield;
+  }
+
+  if (displayRank === 3 || isTiedLast) {
+    return IllustrationImages.rankingSheep;
+  }
+
+  return IllustrationImages.rankingSheep;
 }
 
 export function getIslandKing(rows: readonly RankingRow[]): IslandKing | null {
@@ -143,4 +173,29 @@ export function getMatchTitle(
   }
 
   return '👀 島におった？';
+}
+
+export function getMatchRankImage(
+  participant: GameParticipant,
+  participants: readonly GameParticipant[],
+) {
+  const sameRankCount = participants.filter((candidate) => candidate.rank === participant.rank).length;
+
+  if (participant.rank === 1 && sameRankCount > 1) {
+    return IllustrationImages.rankingBattle;
+  }
+
+  if (participant.rank === 1) {
+    return IllustrationImages.rankingCrown;
+  }
+
+  if (participant.rank === 2 && sameRankCount > 1) {
+    return IllustrationImages.rankingSettlement;
+  }
+
+  if (participant.rank === 2) {
+    return IllustrationImages.rankingShield;
+  }
+
+  return IllustrationImages.rankingSheep;
 }

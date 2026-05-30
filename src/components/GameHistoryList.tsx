@@ -1,10 +1,11 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useState } from 'react';
 
 import { GameResultForm } from '@/components/GameForm';
 import { useGames } from '@/components/GameContext';
 import { Card } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
+import { IllustrationImages } from '@/constants/images';
 import { Colors, Spacing } from '@/constants/theme';
 import type { Game, GameInput, Player, PlayerId } from '@/types/game';
 import { confirmAction } from '@/utils/confirm';
@@ -13,7 +14,7 @@ import {
   sortGamesByNewest,
   sortParticipantsForDisplay,
 } from '@/utils/ranking';
-import { getMatchTitle, getRankBadgeTone } from '@/utils/titles';
+import { getMatchRankImage, getMatchTitle, getRankBadgeTone } from '@/utils/titles';
 
 function getPlayerName(players: readonly Player[], playerId: PlayerId) {
   return players.find((player) => player.id === playerId)?.name ?? playerId;
@@ -73,7 +74,19 @@ export function GameHistoryList({
 
       {sortedGames.length === 0 ? (
         <View style={styles.empty}>
-          <ThemedText type="small">まだ記録がありません。</ThemedText>
+          <Image
+            source={IllustrationImages.rankingSheep}
+            resizeMode="contain"
+            style={styles.emptyImage}
+          />
+          <View style={styles.emptyTextColumn}>
+            <ThemedText type="smallBold" style={styles.emptyTitle}>
+              まだ試合履歴がありません。
+            </ThemedText>
+            <ThemedText type="small" style={styles.caption}>
+              最初の開拓記録を残しましょう。
+            </ThemedText>
+          </View>
         </View>
       ) : (
         <View style={styles.games}>
@@ -141,9 +154,16 @@ export function GameHistoryList({
                                 {participant.points} pt
                               </ThemedText>
                             </View>
-                            <ThemedText type="smallBold" style={styles.matchTitle}>
-                              {getMatchTitle(participant, participants)}
-                            </ThemedText>
+                            <View style={styles.matchTitleRow}>
+                              <Image
+                                source={getMatchRankImage(participant, participants)}
+                                resizeMode="contain"
+                                style={styles.matchTitleImage}
+                              />
+                              <ThemedText type="smallBold" style={styles.matchTitle}>
+                                {getMatchTitle(participant, participants)}
+                              </ThemedText>
+                            </View>
                           </View>
                         </View>
                       ))}
@@ -173,6 +193,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.light.parchment,
     padding: Spacing.three,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  emptyImage: {
+    width: 44,
+    height: 44,
+  },
+  emptyTextColumn: {
+    flex: 1,
+    gap: 2,
+  },
+  emptyTitle: {
+    color: Colors.light.heading,
   },
   games: {
     gap: Spacing.three,
@@ -270,6 +304,16 @@ const styles = StyleSheet.create({
   },
   matchTitle: {
     color: Colors.light.brick,
+    flex: 1,
+  },
+  matchTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+  },
+  matchTitleImage: {
+    width: 28,
+    height: 28,
   },
   rankBadgegold: {
     backgroundColor: Colors.light.rankGoldSoft,

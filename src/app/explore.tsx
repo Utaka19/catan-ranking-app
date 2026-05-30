@@ -1,9 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 import { GameHistoryList } from '@/components/GameHistoryList';
 import { useGames } from '@/components/GameContext';
 import { ScreenShell } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
+import { IllustrationImages } from '@/constants/images';
 import { Colors, Spacing } from '@/constants/theme';
 
 export default function TabTwoScreen() {
@@ -12,12 +13,19 @@ export default function TabTwoScreen() {
   return (
     <ScreenShell>
       <View style={styles.hero}>
-        <ThemedText type="subtitle" style={styles.title}>
-          航海の記録
-        </ThemedText>
-        <ThemedText type="small" style={styles.lead}>
-          これまでの試合結果を新しい順に確認。
-        </ThemedText>
+        <View style={styles.heroText}>
+          <ThemedText type="subtitle" style={styles.title}>
+            航海の記録
+          </ThemedText>
+          <ThemedText type="small" style={styles.lead}>
+            これまでの試合結果を新しい順に確認。
+          </ThemedText>
+        </View>
+        <Image
+          source={IllustrationImages.headerMap}
+          resizeMode="contain"
+          style={styles.heroImage}
+        />
       </View>
 
       {errorMessage && <ThemedText style={styles.errorText}>{errorMessage}</ThemedText>}
@@ -32,10 +40,21 @@ export default function TabTwoScreen() {
 
 const styles = StyleSheet.create({
   hero: {
-    gap: Spacing.two,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
     borderRadius: Spacing.five,
     backgroundColor: Colors.light.brick,
     padding: Spacing.four,
+  },
+  heroText: {
+    flex: 1,
+    gap: Spacing.two,
+  },
+  heroImage: {
+    width: 96,
+    height: 96,
+    opacity: 0.92,
   },
   title: {
     color: '#FFFFFF',
