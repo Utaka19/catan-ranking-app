@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "catan-ranking-app",
+    "name": "島の記録帳",
     "slug": "catan-ranking-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,6 +11,8 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.sei19.shimanokirokucho",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -28,7 +30,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#2F5B46",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76

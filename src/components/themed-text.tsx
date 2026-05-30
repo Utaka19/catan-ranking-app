@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   small: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: 500,
+    fontWeight: 600,
   },
   smallBold: {
     fontSize: 14,
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   default: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: 500,
+    fontWeight: 600,
   },
   title: {
     fontSize: 48,
