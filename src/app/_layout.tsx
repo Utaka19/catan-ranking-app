@@ -1,13 +1,21 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import { DefaultTheme, ThemeProvider } from 'expo-router';
 
 import AppTabs from '@/components/app-tabs';
 import { GameProvider } from '@/components/GameContext';
+import { Colors } from '@/constants/theme';
+
+const appTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: Colors.light.background,
+    card: Colors.light.background,
+  },
+};
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={appTheme}>
       <GameProvider>
         <AppTabs />
       </GameProvider>

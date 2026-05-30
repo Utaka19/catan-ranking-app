@@ -11,11 +11,11 @@ import { Pressable, View, StyleSheet } from 'react-native';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 
 export default function AppTabs() {
   return (
-    <Tabs>
+    <Tabs style={styles.tabsRoot}>
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
@@ -63,6 +63,10 @@ export function CustomTabList(props: TabListProps) {
 }
 
 const styles = StyleSheet.create({
+  tabsRoot: {
+    minHeight: '100%',
+    backgroundColor: Colors.light.background,
+  },
   tabListContainer: {
     position: 'absolute',
     width: '100%',

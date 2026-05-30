@@ -14,8 +14,10 @@ export function ScreenShell({ children, contentStyle }: ScreenShellProps) {
   const theme = useTheme();
 
   return (
-    <ScrollView style={[styles.scrollView, { backgroundColor: theme.background }]}>
-      <SafeAreaView style={styles.safeArea}>
+    <ScrollView
+      style={[styles.scrollView, { backgroundColor: theme.background }]}
+      contentContainerStyle={styles.scrollContent}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
         <View style={[styles.content, contentStyle]}>{children}</View>
       </SafeAreaView>
     </ScrollView>
@@ -29,6 +31,10 @@ export function Card({ children, style }: { children: ReactNode; style?: ViewSty
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    backgroundColor: Colors.light.background,
   },
   safeArea: {
     flex: 1,
