@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "島の記録帳",
-    "slug": "catan-ranking-app",
+    "slug": "shima-logbook",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,7 +11,7 @@
       "icon": "./assets/images/icon.png"
     },
     "android": {
-      "package": "com.sei19.shimanokirokucho",
+      "package": "com.kimama.shimanokirokucho",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#F1DDB3",
@@ -40,6 +40,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e0234103-e9a8-4b5d-a8eb-bef849391f22"
+      }
     }
   }
 }
