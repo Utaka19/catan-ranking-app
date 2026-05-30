@@ -8,7 +8,11 @@ import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
 import type { Game, GameInput, Player, PlayerId } from '@/types/game';
 import { confirmAction } from '@/utils/confirm';
-import { sortGamesByNewest } from '@/utils/ranking';
+import {
+  normalizeGameRanks,
+  sortGamesByNewest,
+  sortParticipantsForDisplay,
+} from '@/utils/ranking';
 
 function getPlayerName(players: readonly Player[], playerId: PlayerId) {
   return players.find((player) => player.id === playerId)?.name ?? playerId;
@@ -113,19 +117,21 @@ export function GameHistoryList({
                     </View>
                   </View>
                   <View style={styles.participants}>
-                    {game.participants.map((participant) => (
-                      <View key={participant.rank} style={styles.participantRow}>
-                        <View style={styles.rankBadge}>
-                          <ThemedText type="smallBold" style={styles.rankLabel}>
-                            {participant.rank}位
+                    {sortParticipantsForDisplay(normalizeGameRanks(game).participants).map(
+                      (participant) => (
+                        <View key={participant.playerId} style={styles.participantRow}>
+                          <View style={styles.rankBadge}>
+                            <ThemedText type="smallBold" style={styles.rankLabel}>
+                              {participant.rank}位
+                            </ThemedText>
+                          </View>
+                          <ThemedText type="small" style={styles.playerName}>
+                            {getPlayerName(players, participant.playerId)}
                           </ThemedText>
+                          <ThemedText type="smallBold">{participant.points} pt</ThemedText>
                         </View>
-                        <ThemedText type="small" style={styles.playerName}>
-                          {getPlayerName(players, participant.playerId)}
-                        </ThemedText>
-                        <ThemedText type="smallBold">{participant.points} pt</ThemedText>
-                      </View>
-                    ))}
+                      ),
+                    )}
                   </View>
                 </>
               )}

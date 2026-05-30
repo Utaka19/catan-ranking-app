@@ -14,8 +14,12 @@ export function validateGameInput(input: GameInput) {
   const selectedPlayers = input.participants.map((participant) => participant.playerId);
   const uniquePlayers = new Set<PlayerId>(selectedPlayers);
 
+  if (selectedPlayers.length !== PLAYER_IDS.length) {
+    errors.push('3人分のポイントを入力してください。');
+  }
+
   if (uniquePlayers.size !== selectedPlayers.length) {
-    errors.push('同じプレイヤーを複数の順位に選べません。');
+    errors.push('同じ開拓者を複数登録できません。');
   }
 
   for (const playerId of selectedPlayers) {
@@ -30,15 +34,6 @@ export function validateGameInput(input: GameInput) {
       errors.push('ポイントは0以上の整数で入力してください。');
       break;
     }
-  }
-
-  const sortedParticipants = [...input.participants].sort((left, right) => left.rank - right.rank);
-  const [first, second, third] = sortedParticipants;
-
-  if (first.points < second.points || second.points < third.points) {
-    errors.push(
-      '順位とポイントが一致していません。1位 >= 2位 >= 3位 になるように入力してください。',
-    );
   }
 
   return errors;

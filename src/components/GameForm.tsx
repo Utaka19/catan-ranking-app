@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { DateField } from '@/components/DateField';
@@ -6,51 +6,67 @@ import { useGames } from '@/components/GameContext';
 import { Card } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
-import type { Game, GameInput, GameParticipant, PlayerId, Rank } from '@/types/game';
+import type { Game, GameInput, Player, PlayerId } from '@/types/game';
 import { getTodayString } from '@/utils/date';
+import { rankParticipantsByPoints } from '@/utils/ranking';
 
 type FormParticipant = {
-  playerId: PlayerId | null;
+  playerId: PlayerId;
   points: string;
 };
 
-const EMPTY_PARTICIPANTS: [FormParticipant, FormParticipant, FormParticipant] = [
-  { playerId: null, points: '' },
-  { playerId: null, points: '' },
-  { playerId: null, points: '' },
-];
-
-function createInitialForm() {
+function createInitialForm(players: readonly Player[]) {
   return {
     date: getTodayString(),
-    participants: EMPTY_PARTICIPANTS,
+    participants: players.map<FormParticipant>((player) => ({
+      playerId: player.id,
+      points: '',
+    })) as [FormParticipant, FormParticipant, FormParticipant],
   };
 }
 
-function createFormFromGame(game: Game) {
+function createFormFromGame(game: Game, players: readonly Player[]) {
+  const pointsByPlayer = new Map(
+    game.participants.map((participant) => [participant.playerId, String(participant.points)]),
+  );
+
   return {
     date: game.date,
-    participants: [...game.participants]
-      .sort((left, right) => left.rank - right.rank)
-      .map<FormParticipant>((participant) => ({
-        playerId: participant.playerId,
-        points: String(participant.points),
-      })) as [FormParticipant, FormParticipant, FormParticipant],
+    participants: players.map<FormParticipant>((player) => ({
+      playerId: player.id,
+      points: pointsByPlayer.get(player.id) ?? '',
+    })) as [FormParticipant, FormParticipant, FormParticipant],
   };
 }
 
-function toRank(index: number): Rank {
-  return (index + 1) as Rank;
+function getPlayerName(players: readonly Player[], playerId: PlayerId) {
+  return players.find((player) => player.id === playerId)?.name ?? playerId;
+}
+
+function hasInvalidPointText(pointText: string) {
+  const trimmedText = pointText.trim();
+
+  if (!trimmedText) {
+    return true;
+  }
+
+  if (!/^\d+$/.test(trimmedText)) {
+    return true;
+  }
+
+  const value = Number(trimmedText);
+  return !Number.isInteger(value) || value < 0;
 }
 
 function toGameInput(date: string, participants: readonly FormParticipant[]): GameInput {
   return {
     date,
-    participants: participants.map<GameParticipant>((participant, index) => ({
-      playerId: participant.playerId as PlayerId,
-      rank: toRank(index),
-      points: Number(participant.points),
-    })) as GameInput['participants'],
+    participants: rankParticipantsByPoints(
+      participants.map((participant) => ({
+        playerId: participant.playerId,
+        points: Number(participant.points),
+      })),
+    ),
   };
 }
 
@@ -76,54 +92,26 @@ export function GameResultForm({
   resetAfterSubmit = false,
 }: GameResultFormProps) {
   const { players } = useGames();
-  const initialForm = initialGame ? createFormFromGame(initialGame) : createInitialForm();
+  const initialForm = initialGame
+    ? createFormFromGame(initialGame, players)
+    : createInitialForm(players);
   const [date, setDate] = useState(initialForm.date);
   const [participants, setParticipants] = useState(initialForm.participants);
   const [messages, setMessages] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
-  const selectedPlayers = useMemo(
-    () => new Set(participants.map((participant) => participant.playerId)),
-    [participants],
-  );
-
-  const updateParticipant = (rankIndex: number, nextParticipant: Partial<FormParticipant>) => {
-    if (nextParticipant.playerId === undefined) {
-      setParticipants((currentParticipants) =>
-        currentParticipants.map((participant, index) =>
-          index === rankIndex ? { ...participant, ...nextParticipant } : participant,
-        ) as [FormParticipant, FormParticipant, FormParticipant],
-      );
-      setMessages([]);
-      return;
-    }
-
+  const updateParticipantPoints = (playerId: PlayerId, points: string) => {
     setParticipants((currentParticipants) =>
-      currentParticipants.map((participant, index) => {
-        if (index === rankIndex) {
-          const nextPlayerId =
-            nextParticipant.playerId === participant.playerId ? null : nextParticipant.playerId;
-          return { ...participant, ...nextParticipant, playerId: nextPlayerId };
-        }
-
-        if (nextParticipant.playerId && participant.playerId === nextParticipant.playerId) {
-          return { ...participant, playerId: null };
-        }
-
-        return participant;
-      }) as [FormParticipant, FormParticipant, FormParticipant],
+      currentParticipants.map((participant) =>
+        participant.playerId === playerId ? { ...participant, points } : participant,
+      ) as [FormParticipant, FormParticipant, FormParticipant],
     );
     setMessages([]);
   };
 
   const handleSubmit = async () => {
-    if (participants.some((participant) => !participant.playerId)) {
-      setMessages(['1位、2位、3位の開拓者をすべて選択してください。']);
-      return;
-    }
-
-    if (participants.some((participant) => !participant.points.trim())) {
-      setMessages(['すべての順位にポイントを入力してください。']);
+    if (participants.some((participant) => hasInvalidPointText(participant.points))) {
+      setMessages(['3人分のポイントを0以上の整数で入力してください。']);
       return;
     }
 
@@ -137,7 +125,7 @@ export function GameResultForm({
     }
 
     if (resetAfterSubmit) {
-      const nextInitialForm = createInitialForm();
+      const nextInitialForm = createInitialForm(players);
       setDate(nextInitialForm.date);
       setParticipants(nextInitialForm.participants);
     }
@@ -158,54 +146,28 @@ export function GameResultForm({
 
       <DateField label="試合日" value={date} onChange={setDate} />
 
-      <View style={styles.rankFields}>
-        {participants.map((participant, index) => {
-          const rank = toRank(index);
-
-          return (
-            <View key={rank} style={styles.rankField}>
-              <View style={styles.rankHeader}>
-                <ThemedText type="smallBold" style={styles.rankTitle}>
-                  {rank}位
-                </ThemedText>
-                <TextInput
-                  value={participant.points}
-                  onChangeText={(points) => updateParticipant(index, { points })}
-                  placeholder="ポイント"
-                  placeholderTextColor={Colors.light.mutedText}
-                  inputMode="numeric"
-                  keyboardType="number-pad"
-                  style={styles.pointInput}
-                />
-              </View>
-              <View style={styles.playerOptions}>
-                {players.map((player) => {
-                  const isSelected = participant.playerId === player.id;
-                  const isUsedElsewhere = selectedPlayers.has(player.id) && !isSelected;
-
-                  return (
-                    <Pressable
-                      key={player.id}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: isSelected }}
-                      onPress={() => updateParticipant(index, { playerId: player.id })}
-                      style={[
-                        styles.playerButton,
-                        isSelected && styles.playerButtonSelected,
-                        isUsedElsewhere && styles.playerButtonAssignedElsewhere,
-                      ]}>
-                      <ThemedText
-                        type="smallBold"
-                        style={isSelected ? styles.playerTextSelected : styles.playerText}>
-                        {player.name}
-                      </ThemedText>
-                    </Pressable>
-                  );
-                })}
-              </View>
+      <View style={styles.pointFields}>
+        {participants.map((participant) => (
+          <View key={participant.playerId} style={styles.pointField}>
+            <View style={styles.playerColumn}>
+              <ThemedText type="smallBold" style={styles.playerName}>
+                {getPlayerName(players, participant.playerId)}
+              </ThemedText>
+              <ThemedText type="small" style={styles.caption}>
+                ポイント順で順位を自動判定
+              </ThemedText>
             </View>
-          );
-        })}
+            <TextInput
+              value={participant.points}
+              onChangeText={(points) => updateParticipantPoints(participant.playerId, points)}
+              placeholder="0"
+              placeholderTextColor={Colors.light.mutedText}
+              inputMode="numeric"
+              keyboardType="number-pad"
+              style={styles.pointInput}
+            />
+          </View>
+        ))}
       </View>
 
       {messages.length > 0 && (
@@ -246,7 +208,7 @@ export function GameForm() {
   return (
     <GameResultForm
       title="試合結果を記録"
-      description="3人分の順位とポイントを入力"
+      description="3人分のポイントを入力すると順位を自動判定"
       submitLabel="記録する"
       successMessage="記録しました。"
       onSubmit={addGame}
@@ -265,27 +227,29 @@ const styles = StyleSheet.create({
   caption: {
     color: Colors.light.mutedText,
   },
-  rankFields: {
+  pointFields: {
     gap: Spacing.two,
   },
-  rankField: {
+  pointField: {
+    minHeight: 68,
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 8,
     backgroundColor: '#EED196',
     padding: Spacing.two,
   },
-  rankHeader: {
-    minHeight: 48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
+  playerColumn: {
+    flex: 1,
+    gap: 2,
   },
-  rankTitle: {
+  playerName: {
     color: Colors.light.heading,
+    fontSize: 16,
   },
   pointInput: {
-    flex: 1,
-    minHeight: 44,
+    width: 104,
+    minHeight: 48,
     borderWidth: 1.5,
     borderColor: Colors.light.border,
     borderRadius: 8,
@@ -294,34 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     fontSize: 17,
     fontWeight: '600',
-  },
-  playerOptions: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  playerButton: {
-    flex: 1,
-    minHeight: 48,
-    borderWidth: 1.5,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFF0D0',
-  },
-  playerButtonSelected: {
-    borderColor: Colors.light.deepGreen,
-    backgroundColor: Colors.light.deepGreen,
-  },
-  playerButtonAssignedElsewhere: {
-    borderColor: Colors.light.brick,
-    backgroundColor: Colors.light.surface,
-  },
-  playerText: {
-    color: Colors.light.heading,
-  },
-  playerTextSelected: {
-    color: '#FFFFFF',
+    textAlign: 'right',
   },
   messages: {
     gap: Spacing.one,

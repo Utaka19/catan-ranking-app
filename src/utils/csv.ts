@@ -1,5 +1,9 @@
 import type { Game, Player, PlayerId } from '@/types/game';
-import { sortGamesByNewest } from '@/utils/ranking';
+import {
+  normalizeGameRanks,
+  sortGamesByNewest,
+  sortParticipantsForDisplay,
+} from '@/utils/ranking';
 
 function getPlayerName(players: readonly Player[], playerId: PlayerId) {
   return players.find((player) => player.id === playerId)?.name ?? playerId;
@@ -20,7 +24,7 @@ export function exportGamesToCsv(games: readonly Game[], players: readonly Playe
   const sortedGames = sortGamesByNewest(games).reverse();
 
   for (const game of sortedGames) {
-    const participants = [...game.participants].sort((left, right) => left.rank - right.rank);
+    const participants = sortParticipantsForDisplay(normalizeGameRanks(game).participants);
 
     for (const participant of participants) {
       rows.push(

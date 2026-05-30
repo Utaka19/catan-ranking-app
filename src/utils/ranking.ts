@@ -1,5 +1,73 @@
-import type { Game, PeriodSelection, Player, RankingRow } from '@/types/game';
+import type {
+  Game,
+  GameParticipant,
+  PeriodSelection,
+  Player,
+  PlayerId,
+  Rank,
+  RankingRow,
+} from '@/types/game';
 import { getPeriodSelectionError, isDateInRange, resolvePeriodRange } from '@/utils/date';
+
+const PLAYER_ORDER: Record<PlayerId, number> = {
+  me: 0,
+  'older-brother': 1,
+  'younger-brother': 2,
+};
+
+export function rankParticipantsByPoints(
+  participants: readonly Pick<GameParticipant, 'playerId' | 'points'>[],
+): [GameParticipant, GameParticipant, GameParticipant] {
+  const sortedParticipants = [...participants].sort((left, right) => {
+    if (left.points !== right.points) {
+      return right.points - left.points;
+    }
+
+    return PLAYER_ORDER[left.playerId] - PLAYER_ORDER[right.playerId];
+  });
+
+  let currentRank = 1;
+  let previousPoints: number | null = null;
+
+  return sortedParticipants.map<GameParticipant>((participant, index) => {
+    if (previousPoints !== null && participant.points < previousPoints) {
+      currentRank = index + 1;
+    }
+
+    previousPoints = participant.points;
+
+    return {
+      ...participant,
+      rank: currentRank as Rank,
+    };
+  }) as [GameParticipant, GameParticipant, GameParticipant];
+}
+
+export function normalizeGameRanks(game: Game): Game {
+  return {
+    ...game,
+    participants: rankParticipantsByPoints(
+      game.participants.map((participant) => ({
+        playerId: participant.playerId,
+        points: participant.points,
+      })),
+    ),
+  };
+}
+
+export function sortParticipantsForDisplay(participants: readonly GameParticipant[]) {
+  return [...participants].sort((left, right) => {
+    if (left.rank !== right.rank) {
+      return left.rank - right.rank;
+    }
+
+    if (left.points !== right.points) {
+      return right.points - left.points;
+    }
+
+    return PLAYER_ORDER[left.playerId] - PLAYER_ORDER[right.playerId];
+  });
+}
 
 export function sortGamesByNewest(games: readonly Game[]) {
   return [...games].sort((left, right) => {
@@ -37,7 +105,7 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
   }));
 
   for (const game of games) {
-    for (const participant of game.participants) {
+    for (const participant of normalizeGameRanks(game).participants) {
       const row = rows.find((candidate) => candidate.playerId === participant.playerId);
 
       if (!row) {
@@ -72,8 +140,10 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
     return right.totalPoints - left.totalPoints;
   });
 
+  let previousRow: RankingRow | null = null;
+  let previousDisplayRank = 1;
+
   return sortedRows.map((row, index) => {
-    const previousRow = sortedRows[index - 1];
     const isTiedWithPrevious =
       previousRow &&
       row.firstPlaces === previousRow.firstPlaces &&
@@ -81,9 +151,13 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
       row.thirdPlaces === previousRow.thirdPlaces &&
       row.totalPoints === previousRow.totalPoints;
 
+    const displayRank = isTiedWithPrevious ? previousDisplayRank : index + 1;
+    previousRow = row;
+    previousDisplayRank = displayRank;
+
     return {
       ...row,
-      displayRank: isTiedWithPrevious ? previousRow.displayRank : index + 1,
+      displayRank,
     };
   });
 }
