@@ -14,7 +14,7 @@ import {
   sortGamesByNewest,
   sortParticipantsForDisplay,
 } from '@/utils/ranking';
-import { getMatchRankImage, getMatchTitle, getRankBadgeTone } from '@/utils/titles';
+import { getMatchTitle, getRankBadgeTone } from '@/utils/titles';
 
 function getPlayerName(players: readonly Player[], playerId: PlayerId) {
   return players.find((player) => player.id === playerId)?.name ?? playerId;
@@ -154,16 +154,9 @@ export function GameHistoryList({
                                 {participant.points} pt
                               </ThemedText>
                             </View>
-                            <View style={styles.matchTitleRow}>
-                              <Image
-                                source={getMatchRankImage(participant, participants)}
-                                resizeMode="contain"
-                                style={styles.matchTitleImage}
-                              />
-                              <ThemedText type="smallBold" style={styles.matchTitle}>
-                                {getMatchTitle(participant, participants)}
-                              </ThemedText>
-                            </View>
+                            <ThemedText type="smallBold" style={styles.matchTitle}>
+                              {getMatchTitle(participant, participants)}
+                            </ThemedText>
                           </View>
                         </View>
                       ))}
@@ -304,16 +297,6 @@ const styles = StyleSheet.create({
   },
   matchTitle: {
     color: Colors.light.brick,
-    flex: 1,
-  },
-  matchTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  matchTitleImage: {
-    width: 28,
-    height: 28,
   },
   rankBadgegold: {
     backgroundColor: Colors.light.rankGoldSoft,

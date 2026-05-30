@@ -40,26 +40,26 @@ export function getOverallTitle(row: RankingRow, rows: readonly RankingRow[]) {
   const isTiedLast = displayRank === getLowestDisplayRank(rows) && isTied;
 
   if (displayRank === 1 && isTied) {
-    return '⚔️ 双璧の覇者';
+    return '双璧の覇者';
   }
 
   if (displayRank === 1) {
-    return '👑 島を統べる大王';
+    return '島を統べる大王';
   }
 
   if (displayRank === 2 && isTied) {
-    return '🛖 名もなき領主';
+    return '名もなき領主';
   }
 
   if (displayRank === 2) {
-    return '🛡️ 王の右腕';
+    return '王の右腕';
   }
 
   if (displayRank === 3 && isTiedLast) {
-    return '📦 資源係';
+    return '資源係';
   }
 
-  return '🐑 羊泥棒';
+  return '羊泥棒';
 }
 
 export function getOverallTitleImage(row: RankingRow, rows: readonly RankingRow[]) {
@@ -135,67 +135,42 @@ export function getMatchTitle(
     const difference = participant.points - nextPoint;
 
     if (difference >= 3) {
-      return '👑 今日は別格';
+      return '今日は別格';
     }
 
     if (difference >= 1) {
-      return '🏆 本日の勝者';
+      return '本日の勝者';
     }
 
-    return '🔥 首の皮一枚';
+    return '首の皮一枚';
   }
 
   if (participant.rank === 2) {
     const tiedSecondCount = participants.filter((candidate) => candidate.rank === 2).length;
 
     if (tiedSecondCount > 1) {
-      return '🐑 羊分け合っとる場合か';
+      return '羊分け合っとる場合か';
     }
 
     const firstPlacePoint = getPointForRank(1, participants) ?? participant.points;
 
     if (firstPlacePoint - participant.points === 1) {
-      return '🥈 惜しかったやん';
+      return '惜しかったやん';
     }
 
-    return '🛖 ええ線いっとる';
+    return 'ええ線いっとる';
   }
 
   const comparisonPoint = secondPlacePoint ?? participant.points;
   const difference = comparisonPoint - participant.points;
 
   if (difference === 1) {
-    return '👏 今日は頑張ったやん';
+    return '今日は頑張ったやん';
   }
 
   if (difference === 2) {
-    return '📦 資源係';
+    return '資源係';
   }
 
-  return '👀 島におった？';
-}
-
-export function getMatchRankImage(
-  participant: GameParticipant,
-  participants: readonly GameParticipant[],
-) {
-  const sameRankCount = participants.filter((candidate) => candidate.rank === participant.rank).length;
-
-  if (participant.rank === 1 && sameRankCount > 1) {
-    return IllustrationImages.rankingBattle;
-  }
-
-  if (participant.rank === 1) {
-    return IllustrationImages.rankingCrown;
-  }
-
-  if (participant.rank === 2 && sameRankCount > 1) {
-    return IllustrationImages.rankingSettlement;
-  }
-
-  if (participant.rank === 2) {
-    return IllustrationImages.rankingShield;
-  }
-
-  return IllustrationImages.rankingSheep;
+  return '島におった？';
 }
