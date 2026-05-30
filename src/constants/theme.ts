@@ -24,6 +24,12 @@ export const Colors = {
     wheat: '#A86905',
     wheatSoft: '#EDC96D',
     heading: '#2B1706',
+    rankGold: '#C88A12',
+    rankSilver: '#A8A49B',
+    rankBronze: '#A65F2B',
+    rankMuted: '#B38A4A',
+    rankGoldSoft: '#F4D47A',
+    kingSurface: '#FFF1BF',
   },
   dark: {
     text: '#F7E8C5',
@@ -41,6 +47,12 @@ export const Colors = {
     wheat: '#D9AA42',
     wheatSoft: '#725B26',
     heading: '#F7E8C5',
+    rankGold: '#D9AA42',
+    rankSilver: '#A8A49B',
+    rankBronze: '#B87942',
+    rankMuted: '#8A6B3D',
+    rankGoldSoft: '#5D4A22',
+    kingSurface: '#4A3820',
   },
 } as const;
 

@@ -13,6 +13,7 @@ import {
   sortGamesByNewest,
   sortParticipantsForDisplay,
 } from '@/utils/ranking';
+import { getMatchTitle, getRankBadgeTone } from '@/utils/titles';
 
 function getPlayerName(players: readonly Player[], playerId: PlayerId) {
   return players.find((player) => player.id === playerId)?.name ?? playerId;
@@ -76,67 +77,82 @@ export function GameHistoryList({
         </View>
       ) : (
         <View style={styles.games}>
-          {sortedGames.map((game) => (
-            <View key={game.id} style={styles.gameCard}>
-              {editingGameId === game.id ? (
-                <GameResultForm
-                  key={game.id}
-                  title="試合結果を編集"
-                  description="保存するとランキングにも反映されます"
-                  submitLabel="保存する"
-                  successMessage="更新しました。"
-                  initialGame={game}
-                  onSubmit={(input) => handleUpdate(game, input)}
-                  onCancel={() => setEditingGameId(null)}
-                />
-              ) : (
-                <>
-                  <View style={styles.cardHeader}>
-                    <View style={styles.dateBadge}>
-                      <ThemedText type="smallBold" style={styles.dateText}>
-                        {game.date}
-                      </ThemedText>
-                    </View>
-                    <View style={styles.actions}>
-                      <Pressable
-                        accessibilityRole="button"
-                        onPress={() => setEditingGameId(game.id)}
-                        style={styles.editButton}>
-                        <ThemedText type="smallBold" style={styles.editText}>
-                          編集
+          {sortedGames.map((game) => {
+            const participants = sortParticipantsForDisplay(normalizeGameRanks(game).participants);
+
+            return (
+              <View key={game.id} style={styles.gameCard}>
+                {editingGameId === game.id ? (
+                  <GameResultForm
+                    key={game.id}
+                    title="試合結果を編集"
+                    description="保存するとランキングにも反映されます"
+                    submitLabel="保存する"
+                    successMessage="更新しました。"
+                    initialGame={game}
+                    onSubmit={(input) => handleUpdate(game, input)}
+                    onCancel={() => setEditingGameId(null)}
+                  />
+                ) : (
+                  <>
+                    <View style={styles.cardHeader}>
+                      <View style={styles.dateBadge}>
+                        <ThemedText type="smallBold" style={styles.dateText}>
+                          {game.date}
                         </ThemedText>
-                      </Pressable>
-                      <Pressable
-                        accessibilityRole="button"
-                        onPress={() => void handleDelete(game)}
-                        style={styles.deleteButton}>
-                        <ThemedText type="smallBold" style={styles.deleteText}>
-                          削除
-                        </ThemedText>
-                      </Pressable>
+                      </View>
+                      <View style={styles.actions}>
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => setEditingGameId(game.id)}
+                          style={styles.editButton}>
+                          <ThemedText type="smallBold" style={styles.editText}>
+                            編集
+                          </ThemedText>
+                        </Pressable>
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => void handleDelete(game)}
+                          style={styles.deleteButton}>
+                          <ThemedText type="smallBold" style={styles.deleteText}>
+                            削除
+                          </ThemedText>
+                        </Pressable>
+                      </View>
                     </View>
-                  </View>
-                  <View style={styles.participants}>
-                    {sortParticipantsForDisplay(normalizeGameRanks(game).participants).map(
-                      (participant) => (
+                    <View style={styles.participants}>
+                      {participants.map((participant) => (
                         <View key={participant.playerId} style={styles.participantRow}>
-                          <View style={styles.rankBadge}>
+                          <View
+                            style={[
+                              styles.rankBadge,
+                              rankBadgeStyles[getRankBadgeTone(participant.rank)],
+                            ]}>
                             <ThemedText type="smallBold" style={styles.rankLabel}>
                               {participant.rank}位
                             </ThemedText>
                           </View>
-                          <ThemedText type="small" style={styles.playerName}>
-                            {getPlayerName(players, participant.playerId)}
-                          </ThemedText>
-                          <ThemedText type="smallBold">{participant.points} pt</ThemedText>
+                          <View style={styles.participantInfo}>
+                            <View style={styles.participantMain}>
+                              <ThemedText type="small" style={styles.playerName}>
+                                {getPlayerName(players, participant.playerId)}
+                              </ThemedText>
+                              <ThemedText type="smallBold" style={styles.pointText}>
+                                {participant.points} pt
+                              </ThemedText>
+                            </View>
+                            <ThemedText type="smallBold" style={styles.matchTitle}>
+                              {getMatchTitle(participant, participants)}
+                            </ThemedText>
+                          </View>
                         </View>
-                      ),
-                    )}
-                  </View>
-                </>
-              )}
-            </View>
-          ))}
+                      ))}
+                    </View>
+                  </>
+                )}
+              </View>
+            );
+          })}
         </View>
       )}
     </Card>
@@ -219,25 +235,67 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   participantRow: {
-    minHeight: 40,
+    minHeight: 48,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: Spacing.two,
   },
   rankBadge: {
     width: 46,
     minHeight: 32,
     borderRadius: 8,
-    backgroundColor: Colors.light.brick,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
   rankLabel: {
-    color: '#FFFFFF',
+    color: Colors.light.text,
+  },
+  participantInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  participantMain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
   },
   playerName: {
     flex: 1,
     color: Colors.light.heading,
     fontSize: 15,
   },
+  pointText: {
+    color: Colors.light.text,
+  },
+  matchTitle: {
+    color: Colors.light.brick,
+  },
+  rankBadgegold: {
+    backgroundColor: Colors.light.rankGoldSoft,
+    borderWidth: 1.5,
+    borderColor: Colors.light.rankGold,
+  },
+  rankBadgesilver: {
+    backgroundColor: Colors.light.rankSilver,
+    borderWidth: 1.5,
+    borderColor: '#77736A',
+  },
+  rankBadgebronze: {
+    backgroundColor: Colors.light.rankBronze,
+    borderWidth: 1.5,
+    borderColor: '#75401D',
+  },
+  rankBadgemuted: {
+    backgroundColor: Colors.light.rankMuted,
+    borderWidth: 1.5,
+    borderColor: Colors.light.border,
+  },
 });
+
+const rankBadgeStyles = {
+  gold: styles.rankBadgegold,
+  silver: styles.rankBadgesilver,
+  bronze: styles.rankBadgebronze,
+  muted: styles.rankBadgemuted,
+};

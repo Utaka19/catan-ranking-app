@@ -4,6 +4,7 @@ import { Card } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
 import type { RankingRow } from '@/types/game';
+import { getIslandKing, getOverallTitle, getRankBadgeTone } from '@/utils/titles';
 
 export function RankingList({
   rows,
@@ -16,8 +17,25 @@ export function RankingList({
   emptyMessage?: string | null;
   errorMessage?: string | null;
 }) {
+  const shouldShowRanking = !errorMessage && !emptyMessage;
+  const islandKing = shouldShowRanking ? getIslandKing(rows) : null;
+
   return (
     <Card>
+      {islandKing ? (
+        <View style={styles.kingCard}>
+          <ThemedText type="smallBold" style={styles.kingHeading}>
+            {islandKing.heading}
+          </ThemedText>
+          <ThemedText type="subtitle" style={styles.kingName}>
+            {islandKing.names}
+          </ThemedText>
+          <ThemedText type="smallBold" style={styles.kingTitle}>
+            {islandKing.title}
+          </ThemedText>
+        </View>
+      ) : null}
+
       <View style={styles.header}>
         <ThemedText type="smallBold" style={styles.heading}>
           総合ランキング
@@ -49,7 +67,7 @@ export function RankingList({
         <View style={styles.rows}>
           {rows.map((row, index) => (
             <View key={row.playerId} style={styles.row}>
-              <View style={styles.rankBadge}>
+              <View style={[styles.rankBadge, rankBadgeStyles[getRankBadgeTone(row.displayRank)]]}>
                 <ThemedText type="smallBold" style={styles.rankText}>
                   {row.displayRank > 0 ? row.displayRank : index + 1}
                 </ThemedText>
@@ -57,6 +75,9 @@ export function RankingList({
               <View style={styles.playerColumn}>
                 <ThemedText type="smallBold" style={styles.playerName}>
                   {row.playerName}
+                </ThemedText>
+                <ThemedText type="smallBold" style={styles.titleText}>
+                  {getOverallTitle(row, rows)}
                 </ThemedText>
                 <ThemedText type="small" style={styles.caption}>
                   {row.totalPoints} pt
@@ -98,6 +119,23 @@ const styles = StyleSheet.create({
   },
   rows: {
     gap: Spacing.two,
+  },
+  kingCard: {
+    gap: Spacing.one,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: Colors.light.rankGold,
+    backgroundColor: Colors.light.kingSurface,
+    padding: Spacing.three,
+  },
+  kingHeading: {
+    color: Colors.light.heading,
+  },
+  kingName: {
+    color: Colors.light.heading,
+  },
+  kingTitle: {
+    color: Colors.light.rankGold,
   },
   condition: {
     borderRadius: 8,
@@ -142,9 +180,28 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.light.wheat,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  rankBadgegold: {
+    backgroundColor: Colors.light.rankGoldSoft,
+    borderWidth: 1.5,
+    borderColor: Colors.light.rankGold,
+  },
+  rankBadgesilver: {
+    backgroundColor: Colors.light.rankSilver,
+    borderWidth: 1.5,
+    borderColor: '#77736A',
+  },
+  rankBadgebronze: {
+    backgroundColor: Colors.light.rankBronze,
+    borderWidth: 1.5,
+    borderColor: '#75401D',
+  },
+  rankBadgemuted: {
+    backgroundColor: Colors.light.rankMuted,
+    borderWidth: 1.5,
+    borderColor: Colors.light.border,
   },
   rankText: {
     color: Colors.light.text,
@@ -157,6 +214,9 @@ const styles = StyleSheet.create({
     color: Colors.light.heading,
     fontSize: 16,
   },
+  titleText: {
+    color: Colors.light.brick,
+  },
   placeStats: {
     flexDirection: 'row',
     gap: Spacing.one,
@@ -166,3 +226,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+const rankBadgeStyles = {
+  gold: styles.rankBadgegold,
+  silver: styles.rankBadgesilver,
+  bronze: styles.rankBadgebronze,
+  muted: styles.rankBadgemuted,
+};
