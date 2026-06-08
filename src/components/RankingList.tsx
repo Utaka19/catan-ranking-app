@@ -109,9 +109,14 @@ export function RankingList({
                     {getOverallTitle(row, rows)}
                   </ThemedText>
                 </View>
-                <ThemedText type="small" numberOfLines={1} style={styles.scoreText}>
-                  総合点：{row.overallScore}点 / カタン合計点：{row.totalPoints}点
-                </ThemedText>
+                <View style={styles.scoreColumn}>
+                  <ThemedText type="small" numberOfLines={1} style={styles.scoreText}>
+                    総合点：{row.overallScore}点
+                  </ThemedText>
+                  <ThemedText type="small" numberOfLines={1} style={styles.scoreText}>
+                    カタン合計点：{row.totalPoints}点
+                  </ThemedText>
+                </View>
               </View>
               <View style={styles.placeStats}>
                 <Stat label="1位" value={row.firstPlaces} />
@@ -284,6 +289,11 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     color: Colors.light.mutedText,
+    fontSize: 13,
+    lineHeight: 17,
+  },
+  scoreColumn: {
+    gap: 0,
   },
   placeStats: {
     flexDirection: 'row',
