@@ -96,7 +96,7 @@ export function RankingList({
                 </ThemedText>
               </View>
               <View style={styles.playerColumn}>
-                <ThemedText type="smallBold" style={styles.playerName}>
+                <ThemedText type="smallBold" numberOfLines={1} style={styles.playerName}>
                   {row.playerName}
                 </ThemedText>
                 <View style={styles.titleRow}>
@@ -105,7 +105,7 @@ export function RankingList({
                     resizeMode="contain"
                     style={styles.titleImage}
                   />
-                  <ThemedText type="smallBold" style={styles.titleText}>
+                  <ThemedText type="smallBold" numberOfLines={1} style={styles.titleText}>
                     {getOverallTitle(row, rows)}
                   </ThemedText>
                 </View>
@@ -117,15 +117,30 @@ export function RankingList({
                     カタン合計点：{row.totalPoints}点
                   </ThemedText>
                 </View>
-                <ThemedText type="small" style={styles.caption}>
-                  {`1位：${row.firstPlaces}回 / 2位：${row.secondPlaces}回 / 3位：${row.thirdPlaces}回`}
-                </ThemedText>
+                <View style={styles.placeStats}>
+                  <Stat label="1位" value={row.firstPlaces} />
+                  <Stat label="2位" value={row.secondPlaces} />
+                  <Stat label="3位" value={row.thirdPlaces} />
+                </View>
               </View>
             </View>
           ))}
         </View>
       )}
     </Card>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <View style={styles.stat}>
+      <ThemedText type="smallBold" numberOfLines={1} style={styles.statValue}>
+        {value}
+      </ThemedText>
+      <ThemedText type="small" numberOfLines={1} style={styles.statLabel}>
+        {label}
+      </ThemedText>
+    </View>
   );
 }
 
@@ -210,23 +225,22 @@ const styles = StyleSheet.create({
     color: Colors.light.brick,
   },
   row: {
-    minHeight: 72,
     borderRadius: 8,
     backgroundColor: Colors.light.surface,
     borderWidth: 1.5,
     borderColor: Colors.light.border,
-    padding: Spacing.two,
+    padding: Spacing.three,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
   rankBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 2,
+    marginTop: Spacing.one,
   },
   rankBadgegold: {
     backgroundColor: Colors.light.rankGoldSoft,
@@ -254,30 +268,50 @@ const styles = StyleSheet.create({
   playerColumn: {
     flex: 1,
     minWidth: 72,
-    gap: 2,
+    gap: Spacing.one,
   },
   playerName: {
     color: Colors.light.heading,
     fontSize: 16,
   },
   titleText: {
+    flex: 1,
     color: Colors.light.brick,
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.one,
+    gap: Spacing.two,
   },
   titleImage: {
-    width: 34,
-    height: 34,
+    width: 28,
+    height: 28,
   },
   scoreColumn: {
     marginTop: Spacing.one,
-    gap: 2,
+    gap: 0,
   },
   scoreText: {
     color: Colors.light.text,
+  },
+  placeStats: {
+    flexDirection: 'row',
+    gap: Spacing.one,
+    marginTop: Spacing.two,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.wheatSoft,
+    paddingTop: Spacing.two,
+  },
+  stat: {
+    flex: 1,
+    alignItems: 'center',
+    minWidth: 0,
+  },
+  statValue: {
+    color: Colors.light.heading,
+  },
+  statLabel: {
+    color: Colors.light.mutedText,
   },
 });
 
