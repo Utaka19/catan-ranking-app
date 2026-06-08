@@ -109,19 +109,14 @@ export function RankingList({
                     {getOverallTitle(row, rows)}
                   </ThemedText>
                 </View>
-                <View style={styles.scoreColumn}>
-                  <ThemedText type="smallBold" style={styles.scoreText}>
-                    総合点：{row.overallScore}点
-                  </ThemedText>
-                  <ThemedText type="small" style={styles.caption}>
-                    カタン合計点：{row.totalPoints}点
-                  </ThemedText>
-                </View>
-                <View style={styles.placeStats}>
-                  <Stat label="1位" value={row.firstPlaces} />
-                  <Stat label="2位" value={row.secondPlaces} />
-                  <Stat label="3位" value={row.thirdPlaces} />
-                </View>
+                <ThemedText type="small" numberOfLines={1} style={styles.scoreText}>
+                  総合点：{row.overallScore}点 / カタン合計点：{row.totalPoints}点
+                </ThemedText>
+              </View>
+              <View style={styles.placeStats}>
+                <Stat label="1位" value={row.firstPlaces} />
+                <Stat label="2位" value={row.secondPlaces} />
+                <Stat label="3位" value={row.thirdPlaces} />
               </View>
             </View>
           ))}
@@ -225,22 +220,22 @@ const styles = StyleSheet.create({
     color: Colors.light.brick,
   },
   row: {
+    minHeight: 72,
     borderRadius: 8,
     backgroundColor: Colors.light.surface,
     borderWidth: 1.5,
     borderColor: Colors.light.border,
-    padding: Spacing.three,
+    padding: Spacing.two,
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.three,
+    alignItems: 'center',
+    gap: Spacing.two,
   },
   rankBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: Spacing.one,
   },
   rankBadgegold: {
     backgroundColor: Colors.light.rankGoldSoft,
@@ -268,7 +263,7 @@ const styles = StyleSheet.create({
   playerColumn: {
     flex: 1,
     minWidth: 72,
-    gap: Spacing.one,
+    gap: 2,
   },
   playerName: {
     color: Colors.light.heading,
@@ -281,31 +276,22 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
+    gap: Spacing.one,
   },
   titleImage: {
-    width: 28,
-    height: 28,
-  },
-  scoreColumn: {
-    marginTop: Spacing.one,
-    gap: 0,
+    width: 34,
+    height: 34,
   },
   scoreText: {
-    color: Colors.light.text,
+    color: Colors.light.mutedText,
   },
   placeStats: {
     flexDirection: 'row',
     gap: Spacing.one,
-    marginTop: Spacing.two,
-    borderTopWidth: 1,
-    borderTopColor: Colors.light.wheatSoft,
-    paddingTop: Spacing.two,
   },
   stat: {
-    flex: 1,
+    width: 42,
     alignItems: 'center',
-    minWidth: 0,
   },
   statValue: {
     color: Colors.light.heading,
