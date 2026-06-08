@@ -9,7 +9,7 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v56.0.0/ before 
 - App name: 島の記録帳
 - Product state: Ver1.3 equivalent
 - Expo app version: `1.0.0` in `app.json` / `package.json`
-- Current date of this status: 2026-05-30
+- Current date of this status: 2026-06-08
 
 ### App Overview
 
@@ -28,6 +28,7 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v56.0.0/ before 
 - 試合編集
 - 試合削除
 - 総合ランキング
+- 総合ランキングの3-2-1点方式
 - 全期間 / 今月 / 先月 / 任意期間のランキング集計
 - 現在の島王カード
 - 総合ランキング称号
@@ -95,6 +96,11 @@ Storage is local only via AsyncStorage.
 - Game results store `playerId`, `rank`, and `points`; they do not store `playerName`.
 - Display names are resolved from current players at render time.
 - Titles and illustration choices are computed at render time and are not saved.
+- 総合ランキングは既存の試合結果から表示時に再計算する:
+  - rank 1 = 総合点3点
+  - rank 2 = 総合点2点
+  - rank 3 = 総合点1点
+  - 総合点が同点の場合はカタン合計点で判定する
 - CSV export format remains:
   - `gameId,date,rank,playerId,playerName,point`
 
@@ -113,6 +119,7 @@ Storage is local only via AsyncStorage.
 ### Android Status
 
 - Android package: `com.kimama.shimanokirokucho`
+- 既存APKからアップデートインストールしてローカルデータを引き継ぐため、`android.package` は変更しない。
 - APK build profile exists in `eas.json` as `preview`
 - Android APK has been built
 - Galaxy実機で動作確認済み

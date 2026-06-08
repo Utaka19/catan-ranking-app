@@ -15,6 +15,22 @@ const PLAYER_ORDER: Record<PlayerId, number> = {
   'younger-brother': 2,
 };
 
+export function getOverallScoreForRank(rank: number) {
+  if (rank === 1) {
+    return 3;
+  }
+
+  if (rank === 2) {
+    return 2;
+  }
+
+  if (rank === 3) {
+    return 1;
+  }
+
+  return 0;
+}
+
 export function rankParticipantsByPoints(
   participants: readonly Pick<GameParticipant, 'playerId' | 'points'>[],
 ): [GameParticipant, GameParticipant, GameParticipant] {
@@ -101,6 +117,7 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
     firstPlaces: 0,
     secondPlaces: 0,
     thirdPlaces: 0,
+    overallScore: 0,
     totalPoints: 0,
   }));
 
@@ -112,6 +129,7 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
         continue;
       }
 
+      row.overallScore += getOverallScoreForRank(participant.rank);
       row.totalPoints += participant.points;
 
       if (participant.rank === 1) {
@@ -125,19 +143,15 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
   }
 
   const sortedRows = rows.sort((left, right) => {
-    if (left.firstPlaces !== right.firstPlaces) {
-      return right.firstPlaces - left.firstPlaces;
+    if (left.overallScore !== right.overallScore) {
+      return right.overallScore - left.overallScore;
     }
 
-    if (left.secondPlaces !== right.secondPlaces) {
-      return right.secondPlaces - left.secondPlaces;
+    if (left.totalPoints !== right.totalPoints) {
+      return right.totalPoints - left.totalPoints;
     }
 
-    if (left.thirdPlaces !== right.thirdPlaces) {
-      return left.thirdPlaces - right.thirdPlaces;
-    }
-
-    return right.totalPoints - left.totalPoints;
+    return PLAYER_ORDER[left.playerId] - PLAYER_ORDER[right.playerId];
   });
 
   let previousRow: RankingRow | null = null;
@@ -146,9 +160,7 @@ export function buildRanking(games: readonly Game[], players: readonly Player[])
   return sortedRows.map((row, index) => {
     const isTiedWithPrevious =
       previousRow &&
-      row.firstPlaces === previousRow.firstPlaces &&
-      row.secondPlaces === previousRow.secondPlaces &&
-      row.thirdPlaces === previousRow.thirdPlaces &&
+      row.overallScore === previousRow.overallScore &&
       row.totalPoints === previousRow.totalPoints;
 
     const displayRank = isTiedWithPrevious ? previousDisplayRank : index + 1;

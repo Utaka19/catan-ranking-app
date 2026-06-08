@@ -11,6 +11,7 @@
 - EAS Project名: `shima-logbook` 想定
 - EAS Project ID: `e0234103-e9a8-4b5d-a8eb-bef849391f22`
 - Android package: `com.kimama.shimanokirokucho`
+- Androidアップデート時のデータ引き継ぎのため、`android.package` は変更しない。
 - 最終ビルド日時: 未記録
 - 最終ビルド種別(APK/AAB): APK作成済み。具体的な最終ビルド種別と日時は未記録
 - `eas.json` profiles:
@@ -47,5 +48,7 @@
 - タブと見出しが被らない
 - 縦スクロールできる
 - 保存データが壊れない
+- 総合ランキングは3-2-1点方式で表示され、同点時はカタン合計点で判定される
+- 既存の `games` / `players` 保存形式を変えずに過去データが再計算される
 - CSV形式が変わっていない
 - Play Store公開する場合はプライバシー方針を用意する

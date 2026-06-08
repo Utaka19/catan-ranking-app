@@ -54,7 +54,7 @@ export function RankingList({
           総合ランキング
         </ThemedText>
         <ThemedText type="small" style={styles.caption}>
-          1位回数、2位回数、3位回数の少なさ、合計ポイント順
+          総合点、カタン合計点順
         </ThemedText>
       </View>
 
@@ -92,7 +92,7 @@ export function RankingList({
             <View key={row.playerId} style={styles.row}>
               <View style={[styles.rankBadge, rankBadgeStyles[getRankBadgeTone(row.displayRank)]]}>
                 <ThemedText type="smallBold" style={styles.rankText}>
-                  {row.displayRank > 0 ? row.displayRank : index + 1}
+                  {row.displayRank > 0 ? row.displayRank : index + 1}位
                 </ThemedText>
               </View>
               <View style={styles.playerColumn}>
@@ -109,31 +109,23 @@ export function RankingList({
                     {getOverallTitle(row, rows)}
                   </ThemedText>
                 </View>
+                <View style={styles.scoreColumn}>
+                  <ThemedText type="smallBold" style={styles.scoreText}>
+                    総合点：{row.overallScore}点
+                  </ThemedText>
+                  <ThemedText type="small" style={styles.caption}>
+                    カタン合計点：{row.totalPoints}点
+                  </ThemedText>
+                </View>
                 <ThemedText type="small" style={styles.caption}>
-                  {row.totalPoints} pt
+                  {`1位：${row.firstPlaces}回 / 2位：${row.secondPlaces}回 / 3位：${row.thirdPlaces}回`}
                 </ThemedText>
-              </View>
-              <View style={styles.placeStats}>
-                <Stat label="1位" value={row.firstPlaces} />
-                <Stat label="2位" value={row.secondPlaces} />
-                <Stat label="3位" value={row.thirdPlaces} />
               </View>
             </View>
           ))}
         </View>
       )}
     </Card>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <View style={styles.stat}>
-      <ThemedText type="smallBold">{value}</ThemedText>
-      <ThemedText type="small" style={styles.caption}>
-        {label}
-      </ThemedText>
-    </View>
   );
 }
 
@@ -225,7 +217,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.border,
     padding: Spacing.two,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: Spacing.two,
   },
   rankBadge: {
@@ -234,6 +226,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
   rankBadgegold: {
     backgroundColor: Colors.light.rankGoldSoft,
@@ -261,6 +254,7 @@ const styles = StyleSheet.create({
   playerColumn: {
     flex: 1,
     minWidth: 72,
+    gap: 2,
   },
   playerName: {
     color: Colors.light.heading,
@@ -273,19 +267,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.one,
-    marginTop: 2,
   },
   titleImage: {
     width: 34,
     height: 34,
   },
-  placeStats: {
-    flexDirection: 'row',
-    gap: Spacing.one,
+  scoreColumn: {
+    marginTop: Spacing.one,
+    gap: 2,
   },
-  stat: {
-    width: 42,
-    alignItems: 'center',
+  scoreText: {
+    color: Colors.light.text,
   },
 });
 

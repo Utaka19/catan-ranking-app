@@ -34,6 +34,7 @@ export type RankingRow = {
   firstPlaces: number;
   secondPlaces: number;
   thirdPlaces: number;
+  overallScore: number;
   totalPoints: number;
 };
 

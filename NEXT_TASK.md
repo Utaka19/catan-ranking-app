@@ -5,7 +5,7 @@
 - Android APK作成済み。
 - Galaxy実機で動作確認済み。
 - Expo EAS Build導入済み。
-- 羊皮紙風UI、イラストUI、島王エンブレム、総合ランキング、CSV出力まで実装済み。
+- 羊皮紙風UI、イラストUI、島王エンブレム、3-2-1点方式の総合ランキング、CSV出力まで実装済み。
 - 保存はAsyncStorageのみ。Firebase / Supabase / SQLite / ログインなし。
 
 # 次回やること
@@ -62,7 +62,10 @@
 - 既存の `games` / `players` 保存形式を壊さないこと。
 - 試合結果には `playerName` を保存しない。表示時に `playerId` から現在名を参照する。
 - 称号や画像選択は保存しない。表示時に計算する。
+- 総合ランキングは保存形式を変えず、rank 1=3点 / rank 2=2点 / rank 3=1点で再計算する。
+- 総合点が同点の場合はカタン合計点で判定する。
 - CSV形式は `gameId,date,rank,playerId,playerName,point` のまま維持する。
+- Androidアップデート時のデータ引き継ぎのため、`app.json` の `android.package` は変更しない。
 - Play Store公開は未実施。pushも行わない。
 
 # メモ
