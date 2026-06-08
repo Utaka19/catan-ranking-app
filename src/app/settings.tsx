@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { useGames } from '@/components/GameContext';
 import { PlayerNameEditor } from '@/components/PlayerNameEditor';
@@ -7,6 +7,7 @@ import { Card, ScreenShell } from '@/components/ScreenShell';
 import { ThemedText } from '@/components/themed-text';
 import { IllustrationImages } from '@/constants/images';
 import { Colors, Spacing } from '@/constants/theme';
+import { copyTextToClipboard } from '@/utils/clipboard';
 import { confirmAction } from '@/utils/confirm';
 import { exportGamesToCsv } from '@/utils/csv';
 
@@ -22,13 +23,12 @@ export default function SettingsScreen() {
       return;
     }
 
-    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
-      await navigator.clipboard.writeText(csv);
-      setMessage('CSVをコピーしました。');
-      return;
+    try {
+      const copied = await copyTextToClipboard(csv);
+      setMessage(copied ? 'CSVをコピーしました' : 'CSVのコピーに失敗しました。');
+    } catch {
+      setMessage('CSVのコピーに失敗しました。');
     }
-
-    setMessage('CSV欄を長押しして手動でコピーしてください。');
   };
 
   const handleReset = async () => {
@@ -97,9 +97,14 @@ export default function SettingsScreen() {
           </View>
         )}
 
-        <Pressable accessibilityRole="button" onPress={handleCopyCsv} style={styles.copyButton}>
+        <Pressable
+          accessibilityLabel="CSVをコピー"
+          accessibilityRole="button"
+          onPress={handleCopyCsv}
+          style={styles.copyButton}
+        >
           <ThemedText type="smallBold" style={styles.copyText}>
-            CSVをコピー
+            📋 CSVをコピー
           </ThemedText>
         </Pressable>
       </Card>
